@@ -1,3 +1,5 @@
+#pragma once
+
 #include <fstream>
 #include <vector>
 #include <string>
@@ -8,7 +10,12 @@ class File {
   vector<string> lines;
   string path;
 
+  void loadFile(string path);
+
   public:
   File(string path);
-  string& lineAt(size_t index);
+  File(string path, bool isNew);
+  const string& lineAt(size_t index);
+  const int size();
+  void save();
 };

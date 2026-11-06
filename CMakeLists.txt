@@ -2,12 +2,19 @@ cmake_minimum_required(VERSION 3.16)
 
 project(TextEditor)
 
-set(CMAKE_CXX_STANDARD 20)
+find_package(Curses REQUIRED)
+include_directories(${CURSES_INCLUDE_DIR})
 
 add_executable(textEditor
-src/main.cpp
-src/file.cpp
+  src/main.cpp
+  src/file.cpp
+  src/editor/editor.cpp
 )
 
-# Прочитать позже в доке, что это делает
-target_compile_definitions(textEditor PRIVATE PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
+set_target_properties(textEditor
+  PROPERTIES
+  CXX_STANDARD 20
+  CXX_STANDARD_REQUIRED ON
+)
+
+target_link_libraries(textEditor ${CURSES_LIBRARIES})
