@@ -20,9 +20,7 @@ int main(int arg_count, char** args ) {
 
   editor.displayFile(file);
 
-  while(true) {
-    editor.run();
-  }
+  editor.run();
 
   file.save();
 }
