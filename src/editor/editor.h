@@ -6,7 +6,8 @@
 
 using std::string, std::vector;
 
-class Editor {  
+class Editor {
+  int cRow = 0, cCol = 0;
   vector<string> lines;
 
   Editor();
