@@ -12,6 +12,9 @@ class Editor {
 
   Editor();
   void moveCursor(int);
+  void insertCh(int);
+  void removeCh();
+  void displayLines(int);
 
   public:  
   Editor(const Editor&) = delete;
