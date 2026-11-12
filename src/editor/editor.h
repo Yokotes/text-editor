@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include "cursor.h"
 #include "../file.h"
 
 using std::string, std::vector;
@@ -9,6 +10,7 @@ using std::string, std::vector;
 class Editor {
   int cRow = 0, cCol = 0;
   vector<string> lines;
+  Cursor cursor;
 
   Editor();
   void moveCursor(int);
@@ -25,4 +27,6 @@ class Editor {
 
   void displayFile(File&);
   void run();
+  int lineSize(int);
+  int linesCount();
 };

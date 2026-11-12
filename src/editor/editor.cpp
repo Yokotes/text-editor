@@ -2,11 +2,12 @@
 #include <string>
 #include <cctype>
 #include "editor.h"
+#include "cursor.h"
 #include "../file.h"
 
 using std::string;
 
-Editor::Editor() {
+Editor::Editor(): cursor(*this) {
   initscr();
   cbreak();
   noecho();
@@ -41,94 +42,76 @@ void Editor::displayFile(File& file) {
     lines.push_back(file.lineAt(i));
   }
   displayLines();
-  getsyx(cRow, cCol);
+  cursor.syncFromScreen();
 }
 
 void Editor::moveCursor(int input) {
-  int row = cRow, col = cCol;
-
-  // TODO: Make more readable;
   switch (input) {
     case KEY_DOWN:
-      if (row < lines.size() - 1) {
-        row++;
-
-        string& line = lines.at(row);
-        if (col > line.length()) col = line.length();
-      }
+      cursor.moveDown();
       break;
     case KEY_UP:
-      if (row > 0) {
-        row--;
-
-        string& line = lines.at(row);
-        if (col > line.length()) col = line.length();
-      }
+      cursor.moveUp();
       break;
     case KEY_LEFT:
-      if (col > 0) col--;
-      else {
-        // NOTE: Case of reaching zero position of line;
-        if (row == 0) break;
-        row--;
-
-        const string& line = lines.at(row);
-        col = line.length();
-      };
+      cursor.moveLeft();
       break;
     case KEY_RIGHT:
-      if (row >= lines.size()) break;
-
-      string& line = lines.at(row);
-      
-      if (col < line.length()) col++;
-      else if (row < lines.size() - 1) {
-        // NOTE: Case of reaching end of line;
-        col = 0;
-        row++;
-      };
+      cursor.moveRight();
       break;
   }
-  
-  move(row, col);
-  cRow = row;
-  cCol = col;
 }
 
 void Editor::insertCh(int input) {
-  // TODO: Idea of replacing whole row is ok, but maybe there is another optimal way;
-  string& line = lines.at(cRow);
-  line.insert(cCol, sizeof(char), char(input));
+  int row = cursor.getRow();
+  int col = cursor.getCol();
+  string& line = lines.at(row);
 
-  mvprintw(cRow, 0, line.c_str());
-  move(cRow, ++cCol);
+  // TODO: Idea of replacing whole row is ok, but maybe there is another optimal way;
+  line.insert(col, sizeof(char), char(input));
+  mvprintw(row, 0, line.c_str());
+
+  cursor.moveTo(row, col + 1);
 }
 
-
 void Editor::removeCh() {
-  // TODO: Add case of merging two lines;
-  string& line = lines.at(cRow);
+  int row = cursor.getRow();
+  int col = cursor.getCol();
+  string& line = lines.at(row);
 
-  if (line.length() > 0) {
-    line.erase(cCol-1, 1);
-    
-    move(cRow, 0);
-    clrtoeol();
-    mvprintw(cRow, 0, line.c_str());
-    
-    cCol--;
-  } else if (lines.size() > 1) {
-    // NOTE: Case of removing empty line;
-    lines.erase(lines.begin() + cRow);
-    
-    displayLines(cRow);
+  if (row == 0 && col == 0) return;
 
-    if (cRow > 0) cRow--;
+  // NOTE: Merging two lines if removing start of line
+  if (col == 0) {
+    string& prevLine = lines.at(row - 1);
+    col = prevLine.length();
+    prevLine += line;
 
-    if (cRow >= 0) cCol = lines.at(cRow).length();
-    else cCol = 0;
+    lines.erase(lines.begin() + row);
+    displayLines(row - 1);
+    cursor.moveTo(row - 1, col);
+
+    return;
   }
-  move(cRow, cCol);
+
+  // NOTE: Default case, just removing char and moving cursor;
+  line.erase(col-1, 1);
+  
+  cursor.moveToRowStart();
+  clrtoeol();
+  mvprintw(row, 0, line.c_str());
+
+  cursor.moveTo(row, col - 1);
+}
+
+int Editor::lineSize(int line) {
+  if (line >= lines.size()) throw std::out_of_range("Line index is more than lines count");
+
+  return lines.at(line).length();
+}
+
+int Editor::linesCount() {
+  return lines.size();
 }
 
 void Editor::run() {

@@ -9,6 +9,7 @@ add_executable(textEditor
   src/main.cpp
   src/file.cpp
   src/editor/editor.cpp
+  src/editor/cursor.cpp
 )
 
 set_target_properties(textEditor
