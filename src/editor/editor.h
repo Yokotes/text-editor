@@ -13,9 +13,10 @@ class Editor {
   Cursor cursor;
 
   Editor();
-  void moveCursor(int);
-  void insertCh(int);
+  void moveCursor(wint_t);
+  void insertCh(wint_t);
   void removeCh();
+  void removeForwardCh();
   void displayLines(int);
 
   public:  

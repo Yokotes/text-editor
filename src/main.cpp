@@ -1,11 +1,14 @@
 #include <iostream>
 #include <string>
+#include <locale.h>
 #include "file.h"
 #include "editor/editor.h"
 
 using std::string;
 
 int main(int arg_count, char** args ) {
+  setlocale(LC_ALL, "");
+
   bool isNew = false;
   string path = "./NEW_FILE.txt";
 

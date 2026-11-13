@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 
 project(TextEditor)
 
+set(CURSES_NEED_WIDE TRUE)
+
 find_package(Curses REQUIRED)
 include_directories(${CURSES_INCLUDE_DIR})
 
